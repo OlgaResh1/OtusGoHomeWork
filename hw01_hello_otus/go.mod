@@ -1,4 +1,4 @@
-module github.com/OlgaResh1/hw01_hello_otus
+module github.com/OlgaResh1/OtusGoHomeWork/hw01_hello_otus
 
 go 1.21
 
