@@ -12,12 +12,12 @@ const invalidSymbol rune = -1
 func isDigit(sym rune) bool {
 	return (sym >= '0' && sym <= '9') // strconv.Atoi(string(sym))?
 }
+
 func isSlash(sym rune) bool {
 	return sym == '\\'
 }
 
 func Unpack(input string) (string, error) {
-
 	result := strings.Builder{}
 	lastSym := invalidSymbol
 	slash := false
