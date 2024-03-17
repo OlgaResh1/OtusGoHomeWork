@@ -12,92 +12,92 @@ type List interface {
 }
 
 type ListItem struct {
-	Value interface{}
-	Next  *ListItem
-	Prev  *ListItem
+	value interface{}
+	next  *ListItem
+	prev  *ListItem
 }
 
 type list struct {
-	First *ListItem
-	Last  *ListItem
-	Count int
+	first *ListItem
+	last  *ListItem
+	count int
 }
 
-func (l list) Len() int { return l.Count }
+func (l list) Len() int { return l.count }
 
-func (l list) Front() *ListItem { return l.First }
+func (l list) Front() *ListItem { return l.first }
 
-func (l list) Back() *ListItem { return l.Last }
+func (l list) Back() *ListItem { return l.last }
 
 func (l *list) PushFront(v interface{}) *ListItem {
-	item := &ListItem{Value: v}
-	if l.Count == 0 {
-		l.First = item
-		l.Last = item
+	item := &ListItem{value: v}
+	if l.count == 0 {
+		l.first = item
+		l.last = item
 	} else {
-		item.Next = l.First
-		l.First.Prev = item
-		l.First = item
+		item.next = l.first
+		l.first.prev = item
+		l.first = item
 	}
-	l.Count++
+	l.count++
 	return item
 }
 
 func (l *list) PushBack(v interface{}) *ListItem {
-	item := &ListItem{Value: v}
-	if l.Count == 0 {
-		l.First = item
-		l.Last = item
+	item := &ListItem{value: v}
+	if l.count == 0 {
+		l.first = item
+		l.last = item
 	} else {
-		item.Prev = l.Last
-		l.Last.Next = item
-		l.Last = item
+		item.prev = l.last
+		l.last.next = item
+		l.last = item
 	}
-	l.Count++
+	l.count++
 	return item
 }
 
 func (l *list) Remove(i *ListItem) {
-	if i.Prev != nil {
-		i.Prev.Next = i.Next
+	if i.prev != nil {
+		i.prev.next = i.next
 	}
-	if i.Next != nil {
-		i.Next.Prev = i.Prev
+	if i.next != nil {
+		i.next.prev = i.prev
 	}
-	if i == l.First {
-		l.First = i.Next
+	if i == l.first {
+		l.first = i.next
 	}
-	if i == l.Last {
-		l.Last = i.Prev
+	if i == l.last {
+		l.last = i.prev
 	}
-	l.Count--
+	l.count--
 }
 
 func (l *list) MoveToFront(i *ListItem) {
-	if i == l.First {
+	if i == l.first {
 		return
 	}
-	if i.Prev != nil {
-		i.Prev.Next = i.Next
+	if i.prev != nil {
+		i.prev.next = i.next
 	}
-	if i.Next != nil {
-		i.Next.Prev = i.Prev
+	if i.next != nil {
+		i.next.prev = i.prev
 	}
-	if i == l.Last {
-		l.Last = i.Prev
+	if i == l.last {
+		l.last = i.prev
 	}
-	i.Next = l.First
-	i.Prev = nil
-	if l.First != nil {
-		l.First.Prev = i
+	i.next = l.first
+	i.prev = nil
+	if l.first != nil {
+		l.first.prev = i
 	}
-	l.First = i
+	l.first = i
 }
 
 func (l *list) Clear() {
-	l.First = nil
-	l.Last = nil
-	l.Count = 0
+	l.first = nil
+	l.last = nil
+	l.count = 0
 }
 
 func NewList() List {

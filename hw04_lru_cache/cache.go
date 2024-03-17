@@ -28,7 +28,7 @@ func (cache *lruCache) Set(key Key, value interface{}) bool {
 
 	if item, ok := cache.items[key]; ok {
 		cache.queue.MoveToFront(item)
-		item.Value = cacheElement{key: key, value: value}
+		item.value = cacheElement{key: key, value: value}
 		return true
 	}
 
@@ -36,7 +36,7 @@ func (cache *lruCache) Set(key Key, value interface{}) bool {
 
 		itemBack := cache.queue.Back()
 
-		delete(cache.items, itemBack.Value.(cacheElement).key)
+		delete(cache.items, itemBack.value.(cacheElement).key)
 		cache.queue.Remove(itemBack)
 	}
 
@@ -52,7 +52,7 @@ func (cache *lruCache) Get(key Key) (interface{}, bool) {
 
 	if item, ok := cache.items[key]; ok {
 		cache.queue.MoveToFront(item)
-		return item.Value.(cacheElement).value, true
+		return item.value.(cacheElement).value, true
 	}
 
 	return nil, false
