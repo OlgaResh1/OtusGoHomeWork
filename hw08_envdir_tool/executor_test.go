@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -48,14 +47,7 @@ func TestRunCmd(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
-
 		returnCode := RunCmd(testCase.cmd, testCase.expectedEnv)
 		require.Equalf(t, testCase.expectedRetCode, returnCode, testCase.testName)
-
-		for envKey, envVal := range testCase.expectedEnv {
-			if !envVal.NeedRemove {
-				require.Equalf(t, os.Getenv(envKey), envVal.Value, "Expected environment variable %s was not valid", envVal.Value)
-			}
-		}
 	}
 }

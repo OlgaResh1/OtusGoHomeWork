@@ -16,22 +16,20 @@ func TestReadDir(t *testing.T) {
 	res, err := ReadDir("./testdata/env")
 	require.NoError(t, err)
 
-	if len(res) != 5 {
-		require.Equal(t, 5, len(res), "Expected 2 variables, got %d")
-	}
+	require.Len(t, res, 5, "Expected 5 variables, got %d")
 
-	require.Equal(t, res["BAR"].Value, "bar")
-	require.Equal(t, res["BAR"].NeedRemove, false)
+	require.Equal(t, "bar", res["BAR"].Value)
+	require.Equal(t, false, res["BAR"].NeedRemove)
 
-	require.Equal(t, res["EMPTY"].Value, "")
-	require.Equal(t, res["EMPTY"].NeedRemove, false)
+	require.Equal(t, "", res["EMPTY"].Value)
+	require.Equal(t, false, res["EMPTY"].NeedRemove)
 
-	require.Equal(t, res["FOO"].Value, "   foo\nwith new line")
-	require.Equal(t, res["FOO"].NeedRemove, false)
+	require.Equal(t, "   foo\nwith new line", res["FOO"].Value)
+	require.Equal(t, false, res["FOO"].NeedRemove)
 
-	require.Equal(t, res["HELLO"].Value, `"hello"`)
-	require.Equal(t, res["HELLO"].NeedRemove, false)
+	require.Equal(t, `"hello"`, res["HELLO"].Value)
+	require.Equal(t, false, res["HELLO"].NeedRemove)
 
-	require.Equal(t, res["UNSET"].Value, "")
-	require.Equal(t, res["UNSET"].NeedRemove, true)
+	require.Equal(t, "", res["UNSET"].Value)
+	require.Equal(t, true, res["UNSET"].NeedRemove)
 }

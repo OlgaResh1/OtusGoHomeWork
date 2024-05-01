@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
+	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 type Environment map[string]EnvValue
@@ -17,31 +19,6 @@ type EnvValue struct {
 }
 
 var ErrWrongFileName = errors.New("wrong filename")
-
-func fileNamesInDir(dir string) ([]string, error) {
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-
-	var fnames []string
-	for _, file := range files {
-		if file.IsDir() {
-			subFiles, err := fileNamesInDir(filepath.Join(dir, file.Name()))
-			if err != nil {
-				return nil, err
-			}
-			fnames = append(fnames, subFiles...)
-		} else {
-			if strings.Contains(file.Name(), "=") {
-				return nil, ErrWrongFileName
-			}
-			fnames = append(fnames, filepath.Join(dir, file.Name()))
-		}
-	}
-
-	return fnames, nil
-}
 
 func trimText(text []byte) []byte {
 	i := bytes.Index(text, []byte{'\n'})
@@ -58,17 +35,24 @@ func trimText(text []byte) []byte {
 func readEnvFromFile(fileName string) (EnvValue, error) {
 	item := EnvValue{}
 
-	fbytes, err := os.ReadFile(fileName)
+	file, err := os.Open(fileName)
 	if err != nil {
 		return item, err
 	}
+	defer file.Close()
 
-	if len(fbytes) == 0 {
+	reader := bufio.NewReader(file)
+	line, err := reader.ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return item, err
+	}
+
+	if len(line) == 0 {
 		item.NeedRemove = true
 		return item, nil
 	}
 
-	item.Value = string(trimText(fbytes))
+	item.Value = string(trimText([]byte(line)))
 	return item, nil
 }
 
@@ -77,12 +61,22 @@ func readEnvFromFile(fileName string) (EnvValue, error) {
 func ReadDir(dir string) (Environment, error) {
 	envs := make(Environment)
 
-	fileNames, err := fileNamesInDir(dir)
+	var filePaths []string
+	err := filepath.WalkDir(dir,
+		func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if !d.IsDir() {
+				filePaths = append(filePaths, path)
+			}
+			return nil
+		})
 	if err != nil {
 		return nil, err
 	}
 
-	for _, fileName := range fileNames {
+	for _, fileName := range filePaths {
 		env, err := readEnvFromFile(fileName)
 		if err != nil {
 			return nil, err
