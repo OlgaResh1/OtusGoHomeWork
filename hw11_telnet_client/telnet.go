@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var connectionIsNil = errors.New("connection not inited")
+var errConnectionIsNil = errors.New("connection not inited")
 
 type TelnetClient interface {
 	Connect() error
@@ -44,14 +44,14 @@ func (tcpClient *telnetClient) Connect() error {
 
 func (tcpClient *telnetClient) Close() error {
 	if tcpClient.connection == nil {
-		return connectionIsNil
+		return errConnectionIsNil
 	}
 	return tcpClient.connection.Close()
 }
 
 func (tcpClient *telnetClient) Send() error {
 	if tcpClient.connection == nil {
-		return connectionIsNil
+		return errConnectionIsNil
 	}
 	for {
 		buf := make([]byte, 1000)
@@ -77,7 +77,7 @@ func (tcpClient *telnetClient) Send() error {
 
 func (tcpClient *telnetClient) Receive() error {
 	if tcpClient.connection == nil {
-		return connectionIsNil
+		return errConnectionIsNil
 	}
 	for {
 		buf := make([]byte, 1000)
