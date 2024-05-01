@@ -13,6 +13,8 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	cmdExec.Stdout = os.Stdout
 	cmdExec.Stderr = os.Stderr
 
+	cmdExec.Env = os.Environ()
+
 	for envName, envVal := range env {
 		if envVal.NeedRemove {
 			cmdExec.Env = append(cmdExec.Env, envName+"=")
@@ -20,7 +22,6 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 			cmdExec.Env = append(cmdExec.Env, envName+"="+envVal.Value)
 		}
 	}
-
 	cmdExec.Run()
 	// if err != nil {
 	returnCode = cmdExec.ProcessState.ExitCode()
