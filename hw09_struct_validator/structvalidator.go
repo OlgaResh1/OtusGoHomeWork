@@ -28,7 +28,7 @@ func contains(elems []string, v string) bool {
 func (v *StructValidator) validateIn(values string) error {
 	allowVals := strings.Split(values, ",")
 
-	switch v.currentField.Type.Kind() {
+	switch v.currentField.Type.Kind() { //nolint:exhaustive
 	case reflect.String:
 		{
 			for _, allowVal := range allowVals {
@@ -109,7 +109,7 @@ func (v *StructValidator) validateRange(limit string, isMin bool) error {
 		}
 	}
 
-	switch v.currentField.Type.Kind() {
+	switch v.currentField.Type.Kind() { //nolint:exhaustive
 	case reflect.Int:
 		{
 			if int(v.currentValue.Int()) < expected && isMin ||
@@ -185,7 +185,7 @@ func (v *StructValidator) validateLen(lenString string) error {
 		}
 	}
 
-	switch v.currentField.Type.Kind() {
+	switch v.currentField.Type.Kind() { //nolint:exhaustive
 	case reflect.String:
 		if expectedLen != len(v.currentValue.String()) {
 			v.validateErrs = append(v.validateErrs, ValidationError{
