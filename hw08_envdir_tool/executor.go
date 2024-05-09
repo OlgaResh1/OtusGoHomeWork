@@ -7,7 +7,7 @@ import (
 
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmd []string, env Environment) (returnCode int) {
-	cmdExec := exec.Command(cmd[0], cmd[1:]...)
+	cmdExec := exec.Command(cmd[0], cmd[1:]...) //nolint:gosec
 
 	cmdExec.Stdin = os.Stdin
 	cmdExec.Stdout = os.Stdout
