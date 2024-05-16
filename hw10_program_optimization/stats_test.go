@@ -1,3 +1,4 @@
+//go:build !bench
 // +build !bench
 
 package hw10programoptimization
@@ -33,6 +34,39 @@ func TestGetDomainStat(t *testing.T) {
 
 	t.Run("find 'unknown'", func(t *testing.T) {
 		result, err := GetDomainStat(bytes.NewBufferString(data), "unknown")
+		require.NoError(t, err)
+		require.Equal(t, DomainStat{}, result)
+	})
+}
+
+func TestGetDomainStatErrs(t *testing.T) {
+	wrongjson1 := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliquid_qui_ea@Browsedrive.gov","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}
+	{Id:2,"Email":"mLynch@broWsecat.com","Phone":"9-373-949-64-00","Password":"SiZLeNSGn","Address":"Fulton Hill 80"}`
+
+	wrongjson2 := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliquid_qui_ea@Browsedrive.gov","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}
+	{"Id":2,"Name":"Jesse Vasquez","User`
+
+	wrongemail := `{"Id":5,"Name":"Janice Rose","Username":"KeithHart","Email":"nullaLinktype.com","Phone":"146-91-01","Password":"acSBF5","Address":"Russell Trail 61"}`
+	var expected DomainStat
+
+	t.Run("error parce json", func(t *testing.T) {
+		result, err := GetDomainStat(bytes.NewBufferString(wrongjson1), "com")
+		require.Error(t, err)
+		require.Equal(t, expected, result)
+	})
+	t.Run("error parce json-2", func(t *testing.T) {
+		result, err := GetDomainStat(bytes.NewBufferString(wrongjson2), "com")
+		require.Error(t, err)
+		require.Equal(t, expected, result)
+	})
+	t.Run("error format e-mail", func(t *testing.T) {
+		result, err := GetDomainStat(bytes.NewBufferString(wrongemail), "com")
+		require.Error(t, err)
+		require.Equal(t, expected, result)
+	})
+
+	t.Run("empty data", func(t *testing.T) {
+		result, err := GetDomainStat(bytes.NewBufferString(``), "com")
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
 	})
