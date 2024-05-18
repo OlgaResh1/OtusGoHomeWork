@@ -238,6 +238,10 @@ func (v *StructValidator) ValidateStruct() error {
 	for i := 0; i < v.validateType.NumField(); i++ {
 		v.currentField = v.validateType.Field(i)
 		v.currentValue = v.validateValue.Field(i)
+
+		if !v.currentField.IsExported() {
+			continue
+		}
 		validate, ok := v.currentField.Tag.Lookup("validate")
 		if !ok {
 			continue
