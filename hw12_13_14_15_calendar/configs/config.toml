@@ -1,5 +1,16 @@
 [logger]
 level = "INFO"
+format = "json"
+addsource = false
 
-# TODO
-# ...
+[sql]
+dsn = "host=localhost port=5432 user=user1 password=pass1 dbname=calendardb sslmode=disable"
+
+[storage]
+# sql, inmemory
+type = "inmemory"
+
+[http]
+addr = ":8080"
+requesttimeout = 0
+

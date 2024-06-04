@@ -1,4 +1,4 @@
-package memorystorage
+package sqlstorage
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
 	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
+	"github.com/pressly/goose"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,8 +18,8 @@ func testEvent(ownerId storage.EventOwnerId, eventTimeString string) storage.Eve
 	}
 	return storage.Event{
 		OwnerId:       ownerId,
-		Title:         "test event",
-		Description:   "test event description",
+		Title:         "test sql event",
+		Description:   "test sql event description",
 		StartDateTime: eventTime,
 		Duration:      0,
 		TimeToNotify:  0,
@@ -28,15 +29,34 @@ func testEvent(ownerId storage.EventOwnerId, eventTimeString string) storage.Eve
 func TestStorage(t *testing.T) {
 	ctx := context.Background()
 	cfg := config.NewConfig()
+	cfg.Storage.Type = "sql"
+	cfg.Sql.Dsn = "host=localhost port=5432 user=user1 password=pass1 dbname=calendardb sslmode=disable"
+
 	s, err := New(cfg)
 	require.NoError(t, err)
 
-	s.Connect(ctx)
+	err = s.Connect(ctx)
+	if err != nil {
+		t.Skip("running this test only with sql")
+	}
 
-	var userId storage.EventOwnerId = 2
+	require.NoError(t, err)
+
+	defer s.Close(ctx)
+
+	err = goose.SetDialect("postgres")
+	require.NoError(t, err)
+
+	err = goose.Up(s.db, "../../../migrations")
+	require.NoError(t, err)
+
+	defer goose.Down(s.db, "../../../migrations")
+
+	var userId storage.EventOwnerId = 4
 
 	eventId1, err := s.CreateEvent(ctx, testEvent(userId, "13.05.2024 12:00:00"))
 	require.NoError(t, err)
+	require.NotNil(t, eventId1)
 
 	eventId2, err := s.CreateEvent(ctx, testEvent(userId, "16.05.2024 20:00:00"))
 	require.NoError(t, err)
@@ -58,10 +78,6 @@ func TestStorage(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, events, 3)
 
-	events, err = s.GetEventsAll(ctx, userId)
-	require.NoError(t, err)
-	require.Len(t, events, 3)
-
 	err = s.UpdateEvent(ctx, eventId1, testEvent(userId, "26.05.2024 12:00:00"))
 	require.NoError(t, err)
 
@@ -71,41 +87,6 @@ func TestStorage(t *testing.T) {
 
 	err = s.RemoveEvent(ctx, eventId2)
 	require.NoError(t, err)
-
-	err = s.Close(ctx)
-	require.NoError(t, err)
-}
-
-func TestStorageErrors(t *testing.T) {
-	ctx := context.Background()
-	cfg := config.NewConfig()
-	s, err := New(cfg)
-	require.NoError(t, err)
-
-	s.Connect(ctx)
-
-	var userId storage.EventOwnerId = 3
-
-	eventId1, err := s.CreateEvent(ctx, testEvent(userId, "13.05.2024 12:00:00"))
-	require.NoError(t, err)
-
-	_, err = s.CreateEvent(ctx, testEvent(userId, "13.05.2024 12:00:00"))
-	require.ErrorIs(t, err, storage.ErrDateBusy)
-
-	_, err = s.CreateEvent(ctx, storage.Event{})
-	require.ErrorIs(t, err, storage.ErrNotValidEvent)
-
-	err = s.UpdateEvent(ctx, eventId1+1, testEvent(userId, "26.05.2024 11:00:00"))
-	require.ErrorIs(t, err, storage.ErrNotExistsEvent)
-
-	err = s.UpdateEvent(ctx, eventId1, testEvent(userId+1, "26.05.2024 11:00:00"))
-	require.ErrorIs(t, err, storage.ErrUserNotValid)
-
-	err = s.UpdateEvent(ctx, eventId1, storage.Event{})
-	require.ErrorIs(t, err, storage.ErrNotValidEvent)
-
-	err = s.RemoveEvent(ctx, eventId1+1)
-	require.ErrorIs(t, err, storage.ErrNotExistsEvent)
 
 	err = s.Close(ctx)
 	require.NoError(t, err)
