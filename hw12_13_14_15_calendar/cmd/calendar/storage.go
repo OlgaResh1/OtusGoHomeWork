@@ -18,15 +18,12 @@ func setupStorage(ctx context.Context, cfg config.Config) (storage app.Storage, 
 		}
 	case "sql":
 		{
-			storage, err = sqlstorage.New(cfg)
+			storage, err = sqlstorage.New(ctx, cfg)
 		}
 	default:
 		return nil, fmt.Errorf("storage type error %s", cfg.Storage.Type)
 	}
 	if err != nil {
-		return nil, err
-	}
-	if err = storage.Connect(ctx); err != nil {
 		return nil, err
 	}
 	return storage, nil

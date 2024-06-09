@@ -3,7 +3,6 @@ package internalhttp
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
 )
@@ -15,7 +14,6 @@ type Server struct { // TODO
 }
 
 type Logger interface {
-	LogHTTPRequest(r *http.Request, d time.Duration, statusCode int)
 	Info(msg string, args ...any)
 	Debug(msg string, args ...any)
 	Error(msg string, args ...any)
@@ -23,11 +21,6 @@ type Logger interface {
 
 type Application interface { // TODO
 }
-
-// func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-// 	w.WriteHeader(http.StatusOK)
-// 	w.Write([]byte("Hello\n"))
-// }
 
 func (s *Server) helloHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)

@@ -16,24 +16,22 @@ type Storage struct { // TODO
 	dsn string
 }
 
-func New(cfg config.Config) (*Storage, error) {
+func New(ctx context.Context, cfg config.Config) (storage *Storage, err error) {
 	if len(cfg.Sql.Dsn) == 0 {
 		return nil, fmt.Errorf("dsn not defined")
 	}
-	return &Storage{dsn: cfg.Sql.Dsn}, nil
-}
+	storage = &Storage{dsn: cfg.Sql.Dsn}
 
-func (s *Storage) Connect(ctx context.Context) (err error) {
-	s.db, err = sql.Open("pgx", s.dsn)
+	storage.db, err = sql.Open("pgx", storage.dsn)
 	if err != nil {
-		return fmt.Errorf("failed to load driver: %w", err)
+		return nil, fmt.Errorf("failed to load driver: %w", err)
 	}
 
-	err = s.db.PingContext(ctx)
+	err = storage.db.PingContext(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to connect to db: %w", err)
+		return nil, fmt.Errorf("failed to connect to db: %w", err)
 	}
-	return nil
+	return storage, nil
 }
 
 func (s *Storage) Close(ctx context.Context) error {
@@ -42,14 +40,20 @@ func (s *Storage) Close(ctx context.Context) error {
 
 func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage.EventId, error) {
 	if len(event.Title) == 0 || event.StartDateTime.IsZero() {
-		return storage.NotValidId, storage.ErrNotValidEvent
+		return 0, storage.ErrNotValidEvent
 	}
+	tx, err := s.db.Begin()
+	if err == nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
 	// check exist event
 	query := `select id	from events where owner_id=$1 and begin_datetime ='$2'`
 	var existId storage.EventId
-	err := s.db.QueryRowContext(ctx, query, event.OwnerId, event.StartDateTime).Scan(&existId)
+	err = s.db.QueryRowContext(ctx, query, event.OwnerId, event.StartDateTime).Scan(&existId)
 	if err == nil {
-		return storage.NotValidId, storage.ErrDateBusy
+		return 0, storage.ErrDateBusy
 	}
 
 	query = `insert into events(owner_id, title, description, begin_datetime, duration)
@@ -59,7 +63,10 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 	err = s.db.QueryRowContext(ctx, query, event.OwnerId, event.Title,
 		event.Description, event.StartDateTime, event.Duration).Scan(&id)
 	if err != nil {
-		return storage.NotValidId, err
+		return 0, err
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
 	}
 
 	return storage.EventId(id), nil
@@ -97,12 +104,9 @@ func (s *Storage) RemoveEvent(ctx context.Context, id storage.EventId) error {
 	if err != nil {
 		return err
 	}
-	rowsCount, err := result.RowsAffected()
+	_, err = result.RowsAffected()
 	if err != nil {
 		return err
-	}
-	if rowsCount != 1 {
-		return storage.ErrNotExistsEvent
 	}
 	return nil
 }

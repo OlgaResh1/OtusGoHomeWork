@@ -20,7 +20,6 @@ type Logger interface {
 }
 
 type Storage interface {
-	Connect(ctx context.Context) (err error)
 	Close(ctx context.Context) error
 	CreateEvent(ctx context.Context, event storage.Event) (storage.EventId, error)
 	UpdateEvent(ctx context.Context, id storage.EventId, event storage.Event) error

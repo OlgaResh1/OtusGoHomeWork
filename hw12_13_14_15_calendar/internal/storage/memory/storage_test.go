@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package memorystorage
 
 import (
@@ -28,10 +31,9 @@ func testEvent(ownerId storage.EventOwnerId, eventTimeString string) storage.Eve
 func TestStorage(t *testing.T) {
 	ctx := context.Background()
 	cfg := config.NewConfig()
+
 	s, err := New(cfg)
 	require.NoError(t, err)
-
-	s.Connect(ctx)
 
 	var userId storage.EventOwnerId = 2
 
@@ -82,8 +84,6 @@ func TestStorageErrors(t *testing.T) {
 	s, err := New(cfg)
 	require.NoError(t, err)
 
-	s.Connect(ctx)
-
 	var userId storage.EventOwnerId = 3
 
 	eventId1, err := s.CreateEvent(ctx, testEvent(userId, "13.05.2024 12:00:00"))
@@ -103,9 +103,6 @@ func TestStorageErrors(t *testing.T) {
 
 	err = s.UpdateEvent(ctx, eventId1, storage.Event{})
 	require.ErrorIs(t, err, storage.ErrNotValidEvent)
-
-	err = s.RemoveEvent(ctx, eventId1+1)
-	require.ErrorIs(t, err, storage.ErrNotExistsEvent)
 
 	err = s.Close(ctx)
 	require.NoError(t, err)

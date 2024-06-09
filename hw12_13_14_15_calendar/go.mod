@@ -1,6 +1,8 @@
 module github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar
 
-go 1.19
+go 1.21
+
+toolchain go1.21.5
 
 require (
 	github.com/jackc/pgx v3.6.2+incompatible

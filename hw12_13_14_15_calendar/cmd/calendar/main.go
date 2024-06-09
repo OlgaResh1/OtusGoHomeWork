@@ -57,14 +57,14 @@ func main() {
 		defer cancel()
 
 		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+			logg.Error("failed to stop http server: "+err.Error(), "source", "http")
 		}
 	}()
 
-	logg.Info("calendar is running...")
+	logg.Info("calendar is running...", "source", "system")
 
 	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
+		logg.Error("failed to start http server: "+err.Error(), "source", "http")
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}

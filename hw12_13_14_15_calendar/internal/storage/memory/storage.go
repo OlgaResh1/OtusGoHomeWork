@@ -21,10 +21,6 @@ func New(cfg config.Config) (*Storage, error) {
 	return s, nil
 }
 
-func (s *Storage) Connect(ctx context.Context) error {
-	return nil
-}
-
 func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
@@ -34,12 +30,12 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 	defer s.mu.Unlock()
 
 	if len(event.Title) == 0 || event.StartDateTime.IsZero() {
-		return storage.NotValidId, storage.ErrNotValidEvent
+		return 0, storage.ErrNotValidEvent
 	}
 
 	for _, ev := range s.events {
 		if event.OwnerId == ev.OwnerId && event.StartDateTime == ev.StartDateTime {
-			return storage.NotValidId, storage.ErrDateBusy
+			return 0, storage.ErrDateBusy
 		}
 	}
 	event.Id = s.counterIds
@@ -84,11 +80,6 @@ func (s *Storage) UpdateEvent(ctx context.Context, id storage.EventId, event sto
 func (s *Storage) RemoveEvent(ctx context.Context, id storage.EventId) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	_, ok := s.events[id]
-	if !ok {
-		return storage.ErrNotExistsEvent
-	}
 	delete(s.events, id)
 	return nil
 }

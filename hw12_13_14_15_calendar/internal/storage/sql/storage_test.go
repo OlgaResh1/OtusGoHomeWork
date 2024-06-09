@@ -32,16 +32,8 @@ func TestStorage(t *testing.T) {
 	cfg.Storage.Type = "sql"
 	cfg.Sql.Dsn = "host=localhost port=5432 user=user1 password=pass1 dbname=calendardb sslmode=disable"
 
-	s, err := New(cfg)
+	s, err := New(ctx, cfg)
 	require.NoError(t, err)
-
-	err = s.Connect(ctx)
-	if err != nil {
-		t.Skip("running this test only with sql")
-	}
-
-	require.NoError(t, err)
-
 	defer s.Close(ctx)
 
 	err = goose.SetDialect("postgres")
