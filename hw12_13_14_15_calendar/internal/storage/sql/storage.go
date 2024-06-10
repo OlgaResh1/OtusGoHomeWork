@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"  //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage" //nolint:depguard
 )
 
 type Storage struct {
@@ -42,7 +42,7 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 		return 0, storage.ErrNotValidEvent
 	}
 	tx, err := s.db.Begin()
-	if err == nil {
+	if err != nil {
 		return 0, err
 	}
 	defer tx.Rollback()

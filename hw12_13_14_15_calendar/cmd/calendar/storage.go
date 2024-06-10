@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/app"
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
-	memorystorage "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage/memory"
-	sqlstorage "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage/sql"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/app"                          //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"                       //nolint:depguard
+	memorystorage "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage/memory" //nolint:depguard
+	sqlstorage "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage/sql"       //nolint:depguard
 )
 
 func setupStorage(ctx context.Context, cfg config.Config) (storage app.Storage, err error) {

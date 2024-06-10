@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config" //nolint:depguard
 )
 
 type Server struct { // TODO

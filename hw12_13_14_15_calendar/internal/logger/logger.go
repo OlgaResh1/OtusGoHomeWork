@@ -10,14 +10,30 @@ type Logger struct {
 }
 
 func New(level string, format string, isAddSource bool) *Logger {
+	l := slog.LevelDebug
+	switch level {
+	case "debug":
+		l = slog.LevelDebug
+	case "info":
+		l = slog.LevelInfo
+	case "warn":
+		l = slog.LevelWarn
+	case "error":
+		l = slog.LevelError
+	}
+
 	logConfig := &slog.HandlerOptions{
 		AddSource:   isAddSource,
-		Level:       slog.LevelDebug,
+		Level:       l,
 		ReplaceAttr: nil,
 	}
-	logHandler := slog.NewTextHandler(os.Stderr, logConfig)
+	var logger *slog.Logger
+	if format == "json" {
+		logger = slog.New(slog.NewJSONHandler(os.Stderr, logConfig))
+	} else if format == "text" {
+		logger = slog.New(slog.NewTextHandler(os.Stderr, logConfig))
+	}
 
-	logger := slog.New(logHandler)
 	slog.SetDefault(logger)
 	return &Logger{logger: logger}
 }
