@@ -1,6 +1,3 @@
-//go:build integration
-// +build integration
-
 package memorystorage
 
 import (
@@ -13,13 +10,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testEvent(ownerId storage.EventOwnerId, eventTimeString string) storage.Event {
+func testEvent(ownerID storage.EventOwnerID, eventTimeString string) storage.Event {
 	eventTime, err := time.Parse("02.01.2006 15:04:05", eventTimeString)
 	if err != nil {
 		return storage.Event{}
 	}
 	return storage.Event{
-		OwnerId:       ownerId,
+		OwnerID:       ownerID,
 		Title:         "test event",
 		Description:   "test event description",
 		StartDateTime: eventTime,
@@ -35,7 +32,7 @@ func TestStorage(t *testing.T) {
 	s, err := New(cfg)
 	require.NoError(t, err)
 
-	var userID storage.EventOwnerId = 2
+	var userID storage.EventOwnerID = 2
 
 	eventID1, err := s.CreateEvent(ctx, testEvent(userID, "13.05.2024 12:00:00"))
 	require.NoError(t, err)
@@ -50,7 +47,7 @@ func TestStorage(t *testing.T) {
 	events, err := s.GetEventsForDay(ctx, userID, time1)
 	require.NoError(t, err)
 	require.Len(t, events, 1)
-	require.Equal(t, eventId1, events[0].Id)
+	require.Equal(t, eventID1, events[0].ID)
 
 	events, err = s.GetEventsForWeek(ctx, userID, time1)
 	require.NoError(t, err)
@@ -64,14 +61,14 @@ func TestStorage(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, events, 3)
 
-	err = s.UpdateEvent(ctx, eventId1, testEvent(userID, "26.05.2024 12:00:00"))
+	err = s.UpdateEvent(ctx, eventID1, testEvent(userID, "26.05.2024 12:00:00"))
 	require.NoError(t, err)
 
 	events, err = s.GetEventsForWeek(ctx, userID, time1)
 	require.NoError(t, err)
 	require.Len(t, events, 1)
 
-	err = s.RemoveEvent(ctx, eventId2)
+	err = s.RemoveEvent(ctx, eventID2)
 	require.NoError(t, err)
 
 	err = s.Close(ctx)
@@ -84,9 +81,9 @@ func TestStorageErrors(t *testing.T) {
 	s, err := New(cfg)
 	require.NoError(t, err)
 
-	var userID storage.EventOwnerId = 3
+	var userID storage.EventOwnerID = 3
 
-	eventId1, err := s.CreateEvent(ctx, testEvent(userID, "13.05.2024 12:00:00"))
+	eventID1, err := s.CreateEvent(ctx, testEvent(userID, "13.05.2024 12:00:00"))
 	require.NoError(t, err)
 
 	_, err = s.CreateEvent(ctx, testEvent(userID, "13.05.2024 12:00:00"))
@@ -95,13 +92,13 @@ func TestStorageErrors(t *testing.T) {
 	_, err = s.CreateEvent(ctx, storage.Event{})
 	require.ErrorIs(t, err, storage.ErrNotValidEvent)
 
-	err = s.UpdateEvent(ctx, eventId1+1, testEvent(userID, "26.05.2024 11:00:00"))
+	err = s.UpdateEvent(ctx, eventID1+1, testEvent(userID, "26.05.2024 11:00:00"))
 	require.ErrorIs(t, err, storage.ErrNotExistsEvent)
 
-	err = s.UpdateEvent(ctx, eventId1, testEvent(userID+1, "26.05.2024 11:00:00"))
+	err = s.UpdateEvent(ctx, eventID1, testEvent(userID+1, "26.05.2024 11:00:00"))
 	require.ErrorIs(t, err, storage.ErrUserNotValid)
 
-	err = s.UpdateEvent(ctx, eventId1, storage.Event{})
+	err = s.UpdateEvent(ctx, eventID1, storage.Event{})
 	require.ErrorIs(t, err, storage.ErrNotValidEvent)
 
 	err = s.Close(ctx)
