@@ -21,25 +21,23 @@ type Logger interface {
 
 type Storage interface {
 	Close(ctx context.Context) error
-	CreateEvent(ctx context.Context, event storage.Event) (storage.EventId, error)
-	UpdateEvent(ctx context.Context, id storage.EventId, event storage.Event) error
-	RemoveEvent(ctx context.Context, id storage.EventId) error
-	GetEventsAll(ctx context.Context, ownerId storage.EventOwnerId) ([]storage.Event, error)
-	GetEventsForDay(ctx context.Context, ownerId storage.EventOwnerId, date time.Time) ([]storage.Event, error)
-	GetEventsForWeek(ctx context.Context, ownerId storage.EventOwnerId, date time.Time) ([]storage.Event, error)
-	GetEventsForMonth(ctx context.Context, ownerId storage.EventOwnerId, date time.Time) ([]storage.Event, error)
+	CreateEvent(ctx context.Context, event storage.Event) (storage.EventID, error)
+	UpdateEvent(ctx context.Context, id storage.EventID, event storage.Event) error
+	RemoveEvent(ctx context.Context, id storage.EventID) error
+	GetEventsAll(ctx context.Context, ownerID storage.EventOwnerID) ([]storage.Event, error)
+	GetEventsForDay(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
+	GetEventsForWeek(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
+	GetEventsForMonth(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
 }
 
 func New(logger Logger, storage Storage) *App {
 	return &App{logger: logger, storage: storage}
 }
 
-func (a *App) CreateEvent(ctx context.Context, title string) (storage.EventId, error) {
+func (a *App) CreateEvent(ctx context.Context, title string) (storage.EventID, error) {
 	return a.storage.CreateEvent(ctx, storage.Event{Title: title})
 }
 
-func (a *App) UpdateEvent(ctx context.Context, id storage.EventId, event storage.Event) error {
+func (a *App) UpdateEvent(ctx context.Context, id storage.EventID, event storage.Event) error {
 	return a.storage.UpdateEvent(ctx, id, event)
 }
-
-//..

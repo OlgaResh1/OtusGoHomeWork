@@ -22,20 +22,20 @@ type Logger interface {
 type Application interface { // TODO
 }
 
-func (s *Server) helloHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) helloHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Hello\n"))
 }
 
 func NewServer(cfg config.Config, logger Logger, app Application) *Server {
 	srv := &http.Server{
-		Addr:              cfg.Http.Address,
-		ReadHeaderTimeout: cfg.Http.RequestTimeout,
+		Addr:              cfg.HTTP.Address,
+		ReadHeaderTimeout: cfg.HTTP.RequestTimeout,
 	}
 	return &Server{logger: logger, app: app, server: srv}
 }
 
-func (s *Server) Start(ctx context.Context) error {
+func (s *Server) Start(_ context.Context) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", s.helloHandler)
 	mux.HandleFunc("/", s.helloHandler)

@@ -5,15 +5,15 @@ import (
 	"time"
 )
 
-type EventId int
+type EventID int
 
-const NotValidId EventId = -1
+const NotValidID EventID = -1
 
-type EventOwnerId int
+type EventOwnerID int
 
 type Event struct {
-	Id            EventId
-	OwnerId       EventOwnerId
+	ID            EventID
+	OwnerID       EventOwnerID
 	Title         string
 	Description   string
 	StartDateTime time.Time

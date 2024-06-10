@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 )
@@ -11,10 +10,8 @@ type Logger struct {
 }
 
 func New(level string, format string, isAddSource bool) *Logger {
-	fmt.Println(level, format)
-
 	logConfig := &slog.HandlerOptions{
-		AddSource:   false,
+		AddSource:   isAddSource,
 		Level:       slog.LevelDebug,
 		ReplaceAttr: nil,
 	}

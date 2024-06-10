@@ -12,8 +12,8 @@ import (
 type Config struct {
 	Logger  LoggerConf  `mapstructure:"logger"`
 	Storage StorageConf `mapstructure:"storage"`
-	Sql     SqlConfig   `mapstructure:"sql"`
-	Http    HttpConfig  `mapstructure:"http"`
+	SQL     SQLConfig   `mapstructure:"sql"`
+	HTTP    HTTPConfig  `mapstructure:"http"`
 }
 
 type LoggerConf struct {
@@ -24,10 +24,10 @@ type LoggerConf struct {
 type StorageConf struct {
 	Type string `mapstructure:"type"`
 }
-type SqlConfig struct {
+type SQLConfig struct {
 	Dsn string `mapstructure:"dsn"`
 }
-type HttpConfig struct {
+type HTTPConfig struct {
 	Address        string        `mapstructure:"addr"`
 	RequestTimeout time.Duration `mapstructure:"requesttimeout"`
 }

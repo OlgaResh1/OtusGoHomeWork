@@ -10,22 +10,22 @@ import (
 )
 
 type Storage struct {
-	events     map[storage.EventId]storage.Event
-	counterIds storage.EventId
+	events     map[storage.EventID]storage.Event
+	counterIDs storage.EventID
 	mu         sync.RWMutex
 }
 
-func New(cfg config.Config) (*Storage, error) {
+func New(_ config.Config) (*Storage, error) {
 	s := &Storage{}
-	s.events = make(map[storage.EventId]storage.Event)
+	s.events = make(map[storage.EventID]storage.Event)
 	return s, nil
 }
 
-func (s *Storage) Close(ctx context.Context) error {
+func (s *Storage) Close(_ context.Context) error {
 	return nil
 }
 
-func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage.EventId, error) {
+func (s *Storage) CreateEvent(_ context.Context, event storage.Event) (storage.EventID, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -34,18 +34,18 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 	}
 
 	for _, ev := range s.events {
-		if event.OwnerId == ev.OwnerId && event.StartDateTime == ev.StartDateTime {
+		if event.OwnerID == ev.OwnerID && event.StartDateTime == ev.StartDateTime {
 			return 0, storage.ErrDateBusy
 		}
 	}
-	event.Id = s.counterIds
-	s.counterIds++
+	event.ID = s.counterIDs
+	s.counterIDs++
 
-	s.events[event.Id] = event
-	return event.Id, nil
+	s.events[event.ID] = event
+	return event.ID, nil
 }
 
-func (s *Storage) UpdateEvent(ctx context.Context, id storage.EventId, event storage.Event) error {
+func (s *Storage) UpdateEvent(_ context.Context, id storage.EventID, event storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -57,13 +57,13 @@ func (s *Storage) UpdateEvent(ctx context.Context, id storage.EventId, event sto
 		return storage.ErrNotValidEvent
 	}
 	for _, ev := range s.events {
-		if ev.Id != id && event.OwnerId == ev.OwnerId &&
+		if ev.ID != id && event.OwnerID == ev.OwnerID &&
 			event.StartDateTime == ev.StartDateTime {
 			return storage.ErrDateBusy
 		}
 	}
 
-	if event.OwnerId != exist.OwnerId {
+	if event.OwnerID != exist.OwnerID {
 		return storage.ErrUserNotValid
 	}
 
@@ -77,31 +77,32 @@ func (s *Storage) UpdateEvent(ctx context.Context, id storage.EventId, event sto
 	return nil
 }
 
-func (s *Storage) RemoveEvent(ctx context.Context, id storage.EventId) error {
+func (s *Storage) RemoveEvent(_ context.Context, id storage.EventID) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.events, id)
 	return nil
 }
 
-func (s *Storage) GetEventsAll(ctx context.Context, ownerId storage.EventOwnerId) ([]storage.Event, error) {
+func (s *Storage) GetEventsAll(_ context.Context, ownerID storage.EventOwnerID) ([]storage.Event, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	result := make([]storage.Event, 0)
 	for _, event := range s.events {
-		if event.OwnerId == ownerId {
+		if event.OwnerID == ownerID {
 			result = append(result, event)
 		}
 	}
 	return result, nil
 }
 
-func (s *Storage) GetEventsForDay(ctx context.Context, ownerId storage.EventOwnerId, date time.Time) ([]storage.Event, error) {
+func (s *Storage) GetEventsForDay(_ context.Context, ownerID storage.EventOwnerID, date time.Time,
+) ([]storage.Event, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	result := make([]storage.Event, 0)
 	for _, event := range s.events {
-		if event.OwnerId == ownerId &&
+		if event.OwnerID == ownerID &&
 			event.StartDateTime.Day() == date.Day() &&
 			event.StartDateTime.Month() == date.Month() &&
 			event.StartDateTime.Year() == date.Year() {
@@ -111,7 +112,8 @@ func (s *Storage) GetEventsForDay(ctx context.Context, ownerId storage.EventOwne
 	return result, nil
 }
 
-func (s *Storage) GetEventsForWeek(ctx context.Context, ownerId storage.EventOwnerId, date time.Time) ([]storage.Event, error) {
+func (s *Storage) GetEventsForWeek(_ context.Context, ownerID storage.EventOwnerID, date time.Time,
+) ([]storage.Event, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	result := make([]storage.Event, 0)
@@ -119,7 +121,7 @@ func (s *Storage) GetEventsForWeek(ctx context.Context, ownerId storage.EventOwn
 	dateYear, dateWeek := date.ISOWeek()
 
 	for _, event := range s.events {
-		if event.OwnerId == ownerId {
+		if event.OwnerID == ownerID {
 			year, week := event.StartDateTime.ISOWeek()
 			if year == dateYear && week == dateWeek {
 				result = append(result, event)
@@ -129,12 +131,13 @@ func (s *Storage) GetEventsForWeek(ctx context.Context, ownerId storage.EventOwn
 	return result, nil
 }
 
-func (s *Storage) GetEventsForMonth(ctx context.Context, ownerId storage.EventOwnerId, date time.Time) ([]storage.Event, error) {
+func (s *Storage) GetEventsForMonth(_ context.Context, ownerID storage.EventOwnerID, date time.Time,
+) ([]storage.Event, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	result := make([]storage.Event, 0)
 	for _, event := range s.events {
-		if event.OwnerId == ownerId && event.StartDateTime.Year() == date.Year() {
+		if event.OwnerID == ownerID && event.StartDateTime.Year() == date.Year() {
 			result = append(result, event)
 		}
 	}
