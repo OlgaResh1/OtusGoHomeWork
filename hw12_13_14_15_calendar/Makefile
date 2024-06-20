@@ -10,6 +10,16 @@ build:
 run: build
 	$(BIN) --config ./configs/config.toml
 
+generate:
+	rm -rf internal/pb
+	mkdir -p internal/pb
+
+	protoc \
+		--proto_path=api/ \
+		--go_out=internal/pb \
+		--go-grpc_out=internal/pb \
+		api/*.proto
+		
 build-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \

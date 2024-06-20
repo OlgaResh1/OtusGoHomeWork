@@ -14,6 +14,7 @@ type Config struct {
 	Storage StorageConf `mapstructure:"storage"`
 	SQL     SQLConfig   `mapstructure:"sql"`
 	HTTP    HTTPConfig  `mapstructure:"http"`
+	GRPC    GRPCConfig  `mapstructure:"grpc"`
 }
 
 type LoggerConf struct {
@@ -21,13 +22,21 @@ type LoggerConf struct {
 	Format    string `mapstructure:"format"`
 	AddSource bool   `mapstructure:"addsource"`
 }
+
 type StorageConf struct {
 	Type string `mapstructure:"type"`
 }
+
 type SQLConfig struct {
 	Dsn string `mapstructure:"dsn"`
 }
+
 type HTTPConfig struct {
+	Address        string        `mapstructure:"addr"`
+	RequestTimeout time.Duration `mapstructure:"requesttimeout"`
+}
+
+type GRPCConfig struct {
 	Address        string        `mapstructure:"addr"`
 	RequestTimeout time.Duration `mapstructure:"requesttimeout"`
 }
