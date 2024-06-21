@@ -36,7 +36,7 @@ type Application interface {
 	GetEventsForMonth(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
 }
 
-const ERROR_PARCE_DATE = "error parse date "
+const ErrorParceDate = "error parse date "
 
 func NewServer(cfg config.Config, logger Logger, app Application) *Server {
 	srv := &http.Server{
@@ -216,7 +216,7 @@ func (s *Server) getEventForDayHandler(w http.ResponseWriter, req *http.Request)
 	date, err := time.Parse("2006-1-2", datestring)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		s.logger.Error(ERROR_PARCE_DATE+datestring, "error", err)
+		s.logger.Error(ErrorParceDate+datestring, "error", err)
 		return
 	}
 	s.getEventIntervalHandler(w, req, s.app.GetEventsForDay, date)
@@ -228,7 +228,7 @@ func (s *Server) getEventForWeekHandler(w http.ResponseWriter, req *http.Request
 	date, err := time.Parse("2006-1-2", datestring)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		s.logger.Error(ERROR_PARCE_DATE+datestring, "error", err)
+		s.logger.Error(ErrorParceDate+datestring, "error", err)
 		return
 	}
 	s.getEventIntervalHandler(w, req, s.app.GetEventsForWeek, date)
@@ -240,7 +240,7 @@ func (s *Server) getEventForMonthHandler(w http.ResponseWriter, req *http.Reques
 	date, err := time.Parse("2006-1-2", datestring)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		s.logger.Error(ERROR_PARCE_DATE+datestring, "error", err)
+		s.logger.Error(ErrorParceDate+datestring, "error", err)
 		return
 	}
 	s.getEventIntervalHandler(w, req, s.app.GetEventsForMonth, date)
