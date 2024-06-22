@@ -1,3 +1,5 @@
+//go:generate protoc --proto_path=../../../api/ --go_out=../../../internal/pb --go-grpc_out=../../../internal/pb ../../../api/EventService.proto
+
 package internalgrpc
 
 import (
@@ -56,7 +58,7 @@ func toPBEvents(events []storage.Event) []*pb.Event {
 	pbEvents := make([]*pb.Event, len(events))
 	for i, event := range events {
 		pbEvents[i] = &pb.Event{
-			EventId:      int64(event.ID),
+			Id:           int64(event.ID),
 			OwnerId:      int64(event.OwnerID),
 			Title:        event.Title,
 			Description:  event.Description,
@@ -76,25 +78,25 @@ func (s *Server) CreateEvent(ctx context.Context, event *pb.Event) (*pb.CreateEv
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &pb.CreateEventResponse{EventId: int64(eventID)}, nil
+	return &pb.CreateEventResponse{Id: int64(eventID)}, nil
 }
 
 func (s *Server) UpdateEvent(ctx context.Context, event *pb.Event) (*pb.UpdateEventResponse, error) {
 	if event == nil {
 		return nil, status.Error(codes.InvalidArgument, "event is not specified")
 	}
-	err := s.app.UpdateEvent(ctx, storage.EventID(event.EventId), fromPBEvent(event))
+	err := s.app.UpdateEvent(ctx, storage.EventID(event.Id), fromPBEvent(event))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &pb.UpdateEventResponse{EventId: event.EventId}, nil
+	return &pb.UpdateEventResponse{Id: event.Id}, nil
 }
 
 func (s *Server) RemoveEvent(ctx context.Context, req *pb.RemoveEventRequest) (*empty.Empty, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "event_id is not specified")
 	}
-	err := s.app.RemoveEvent(ctx, storage.EventID(req.GetEventId()))
+	err := s.app.RemoveEvent(ctx, storage.EventID(req.GetId()))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
