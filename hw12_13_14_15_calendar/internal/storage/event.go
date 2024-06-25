@@ -12,13 +12,13 @@ const NotValidID EventID = -1
 type EventOwnerID int
 
 type Event struct {
-	ID            EventID
-	OwnerID       EventOwnerID
-	Title         string
-	Description   string
-	StartDateTime time.Time
-	Duration      time.Duration
-	TimeToNotify  time.Duration
+	ID            EventID       `json:"id,omitempty"`
+	OwnerID       EventOwnerID  `json:"userid,omitempty"`
+	Title         string        `json:"title,omitempty"`
+	Description   string        `json:"description,omitempty"`
+	StartDateTime time.Time     `json:"time,omitempty"`
+	Duration      time.Duration `json:"duration,omitempty"`
+	TimeToNotify  time.Duration `json:"timenotify,omitempty"`
 }
 
 var (

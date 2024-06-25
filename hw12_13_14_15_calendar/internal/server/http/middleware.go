@@ -35,7 +35,9 @@ func (s *Server) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		lrw := &loggingResponseWriter{w, http.StatusOK}
+
 		next.ServeHTTP(lrw, r)
+
 		duration := time.Since(start)
 		s.logHTTPRequest(r, duration, lrw.statusCode)
 	})

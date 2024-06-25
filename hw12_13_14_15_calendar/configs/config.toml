@@ -14,3 +14,7 @@ type = "inmemory"
 addr = ":8080"
 requesttimeout = 0
 
+[grpc]
+addr = ":50051"
+requesttimeout = 0
+

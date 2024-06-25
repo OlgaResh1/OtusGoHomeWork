@@ -10,6 +10,9 @@ build:
 run: build
 	$(BIN) --config ./configs/config.toml
 
+generate:
+	go generate ./...
+		
 build-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
