@@ -11,6 +11,8 @@ const NotValidID EventID = -1
 
 type EventOwnerID int
 
+const NotValidOwnerID EventOwnerID = -1
+
 type Event struct {
 	ID            EventID       `json:"id,omitempty"`
 	OwnerID       EventOwnerID  `json:"userid,omitempty"`

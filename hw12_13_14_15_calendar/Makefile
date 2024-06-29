@@ -1,4 +1,6 @@
 BIN := "./bin/calendar"
+BIN_SCHEDULER="./bin/calendar_scheduler"
+BIN_SENDER="./bin/calendar_sender"
 DOCKER_IMG="calendar:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
@@ -6,9 +8,18 @@ LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%d
 
 build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/calendar_scheduler
+	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/calendar_sender
 
 run: build
 	$(BIN) --config ./configs/config.toml
+
+run-scheduler: build
+	$(BIN_SCHEDULER) --config ./configs/scheduler_config.toml
+
+run-sender: build
+	$(BIN_SENDER) --config ./configs/sender_config.toml
+
 
 generate:
 	go generate ./...
@@ -34,4 +45,4 @@ install-lint-deps:
 lint: install-lint-deps
 	golangci-lint run ./...
 
-.PHONY: build run build-img run-img version test lint
+.PHONY: build run run-scheduler run-sender build-img run-img version test lint

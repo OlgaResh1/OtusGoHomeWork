@@ -41,6 +41,8 @@ type Application interface {
 	GetEventsForDay(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
 	GetEventsForWeek(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
 	GetEventsForMonth(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
+	GetEventsForNotification(ctx context.Context, startDate time.Time, endDate time.Time) ([]storage.Event, error)
+	RemoveOldEvents(ctx context.Context, date time.Time) error
 }
 
 func fromPBEvent(event *pb.Event) storage.Event {
@@ -103,6 +105,17 @@ func (s *Server) RemoveEvent(ctx context.Context, req *pb.RemoveEventRequest) (*
 	return &empty.Empty{}, nil
 }
 
+func (s *Server) RemoveOldEvents(ctx context.Context, req *pb.RemoveOldEventsRequest) (*empty.Empty, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "date is not specified")
+	}
+	err := s.app.RemoveOldEvents(ctx, req.GetDate().AsTime())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &empty.Empty{}, nil
+}
+
 func (s *Server) GetEventsAll(ctx context.Context, req *pb.GetEventsRequest) (*pb.GetEventsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "owner_id is not specified")
@@ -148,6 +161,20 @@ func (s *Server) GetEventsForMonth(ctx context.Context,
 		return nil, status.Error(codes.InvalidArgument, "owner_id is not specified")
 	}
 	events, err := s.app.GetEventsForMonth(ctx, storage.EventOwnerID(req.GetOwnerId()), req.GetDate().AsTime())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.GetEventsResponse{Events: toPBEvents(events)}, nil
+}
+
+func (s *Server) GetEventsForNotification(ctx context.Context,
+	req *pb.GetEventsForNotificationRequest,
+) (*pb.GetEventsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "owner_id is not specified")
+	}
+	events, err := s.app.GetEventsForNotification(ctx, req.GetStartdate().AsTime(), req.GetEnddate().AsTime())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

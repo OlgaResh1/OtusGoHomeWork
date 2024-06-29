@@ -1,0 +1,17 @@
+[logger]
+level = "INFO"
+format = "json"
+addsource = false
+
+[httpclient]
+addr=":8080"
+
+
+[rabbitmq]
+uri = "amqp://guest:guest@localhost:5672/"
+exchange = "test-exchange"
+queuename = "test-queue"
+exchangekind = "topic"
+buidingkey = "test-key"
+routingkey = "test-key"
+consumertag = "simple-consumer"
