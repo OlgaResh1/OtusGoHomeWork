@@ -31,7 +31,7 @@ type Scheduler struct {
 	calendarAddr     string
 }
 
-func New(_ context.Context, cfg config.Config, logger logger.Logger, p Producer) (*Scheduler, error) {
+func New(cfg config.Config, logger logger.Logger, p Producer) (*Scheduler, error) {
 	d, err := time.ParseDuration(cfg.Scheduler.TimePeriod)
 	if err != nil {
 		return nil, err

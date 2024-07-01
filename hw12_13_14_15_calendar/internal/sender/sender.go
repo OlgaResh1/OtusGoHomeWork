@@ -17,7 +17,7 @@ type Sender struct {
 	consumer Consumer
 }
 
-func New(_ context.Context, logger logger.Logger, consumer Consumer) (*Sender, error) {
+func New(logger logger.Logger, consumer Consumer) (*Sender, error) {
 	return &Sender{
 		logger:   logger,
 		consumer: consumer,

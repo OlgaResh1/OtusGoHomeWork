@@ -22,7 +22,8 @@ func init() {
 
 func main() {
 	pflag.Parse()
-	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
 
 	cfg := config.NewConfig()
 	if err := cfg.ReadConfig(configFile); err != nil {
@@ -43,7 +44,7 @@ func main() {
 			logg.Info("rabbit closed ok", "source", "scheduler")
 		}
 	}()
-	s, err := scheduler.New(ctx, cfg, *logg, r)
+	s, err := scheduler.New(cfg, *logg, r)
 	if err != nil {
 		logg.Error("failed to start: "+err.Error(), "source", "scheduler")
 		return

@@ -22,7 +22,8 @@ func init() {
 
 func main() {
 	pflag.Parse()
-	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
 
 	cfg := config.NewConfig()
 	if err := cfg.ReadConfig(configFile); err != nil {
@@ -43,7 +44,7 @@ func main() {
 			logg.Info("rabbit closed ok", "source", "sender")
 		}
 	}()
-	s, err := sender.New(ctx, *logg, r)
+	s, err := sender.New(*logg, r)
 	if err != nil {
 		logg.Error("failed to create sender: "+err.Error(), "source", "sender")
 		return

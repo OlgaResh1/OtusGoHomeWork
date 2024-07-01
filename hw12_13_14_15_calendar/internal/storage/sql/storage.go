@@ -100,11 +100,7 @@ func (s *Storage) UpdateEvent(ctx context.Context, id storage.EventID, event sto
 func (s *Storage) RemoveEvent(ctx context.Context, id storage.EventID) error {
 	query := `delete from events where id = $1`
 
-	result, err := s.db.ExecContext(ctx, query, id)
-	if err != nil {
-		return err
-	}
-	_, err = result.RowsAffected()
+	_, err := s.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -114,14 +110,11 @@ func (s *Storage) RemoveEvent(ctx context.Context, id storage.EventID) error {
 func (s *Storage) RemoveOldEvents(ctx context.Context, date time.Time) error {
 	query := `delete from events where begin_datetime < $1`
 
-	result, err := s.db.ExecContext(ctx, query, date)
+	_, err := s.db.ExecContext(ctx, query, date)
 	if err != nil {
 		return err
 	}
-	_, err = result.RowsAffected()
-	if err != nil {
-		return err
-	}
+
 	return nil
 }
 
