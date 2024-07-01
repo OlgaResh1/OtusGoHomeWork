@@ -22,14 +22,15 @@ func init() {
 
 func main() {
 	pflag.Parse()
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer cancel()
 
 	cfg := config.NewConfig()
 	if err := cfg.ReadConfig(configFile); err != nil {
 		log.Fatal("read config failed: ", err)
 		return
 	}
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+
 	logg := logger.New(cfg.Logger.Level, cfg.Logger.Format, cfg.Logger.AddSource)
 	r, err := rabbit.New(cfg.RMQ, *logg)
 	if err != nil {
