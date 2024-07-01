@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"  //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage" //nolint:depguard
-	_ "github.com/jackc/pgx/stdlib"                                               //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
+	_ "github.com/jackc/pgx/stdlib"
 )
 
 type Storage struct {
@@ -46,8 +47,12 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 	if err != nil {
 		return 0, err
 	}
-	defer tx.Rollback()
-
+	defer func() {
+		err = tx.Rollback()
+		if err != nil {
+			log.Println("failed to rollback transaction:", err)
+		}
+	}()
 	// check exist event
 	query := `select id	from events where owner_id=$1 and begin_datetime ='$2'`
 	var existID storage.EventID

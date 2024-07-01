@@ -7,11 +7,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config" //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger" //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/rabbit" //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/sender" //nolint:depguard
-	"github.com/spf13/pflag"                                                     //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/rabbit"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/sender"
+	"github.com/spf13/pflag"
 )
 
 var configFile string
@@ -50,7 +50,13 @@ func main() {
 		logg.Error("failed to create sender: "+err.Error(), "source", "sender")
 		return
 	}
-	go s.SendNotification(ctx)
+	go func() {
+		err := s.SendNotification(ctx)
+		if err != nil {
+			logg.Error("failed to send notification: "+err.Error(), "source", "sender")
+			return
+		}
+	}()
 	logg.Info("Sender service started", "source", "sender")
 	<-ctx.Done()
 }

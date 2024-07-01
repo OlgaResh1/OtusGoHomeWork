@@ -9,12 +9,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/app"                      //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"                   //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"                   //nolint:depguard
-	internalgrpc "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/server/grpc" //nolint:depguard
-	internalhttp "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/server/http" //nolint:depguard
-	"github.com/spf13/pflag"                                                                       //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/app"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/server/grpc"
+	internalhttp "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/spf13/pflag"
 )
 
 var configFile string
@@ -45,8 +45,13 @@ func main() {
 		log.Fatal("error create storage: ", err)
 		return
 	}
-	defer closeStorage(ctx, storage)
-
+	defer func() {
+		err = closeStorage(ctx, storage)
+		if err != nil {
+			logg.Error("error close storage: " + err.Error())
+			return
+		}
+	}()
 	calendar := app.New(logg, storage)
 	serverHTTP := internalhttp.NewServer(cfg, logg, calendar)
 	serverGrpc := internalgrpc.NewServer(cfg, logg, calendar)

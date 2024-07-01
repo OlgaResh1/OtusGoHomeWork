@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"  //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage" //nolint:depguard
-	"github.com/gorilla/mux"                                                      //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
+	"github.com/gorilla/mux"
 )
 
 type Server struct {
@@ -108,7 +108,10 @@ func (s *Server) createEventHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf(`{"id": %d }`, int(eventID))))
+	_, err = w.Write([]byte(fmt.Sprintf(`{"id": %d }`, int(eventID))))
+	if err != nil {
+		s.logger.Error("error write responce", "error", err)
+	}
 }
 
 func (s *Server) updateEventHandler(w http.ResponseWriter, req *http.Request) {
@@ -204,7 +207,10 @@ func (s *Server) getEventHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write(jres)
+	_, err = w.Write(jres)
+	if err != nil {
+		s.logger.Error("error write responce", "error", err)
+	}
 }
 
 func (s *Server) getEventForNotifyHandler(w http.ResponseWriter, req *http.Request) {
@@ -233,7 +239,10 @@ func (s *Server) getEventForNotifyHandler(w http.ResponseWriter, req *http.Reque
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write(jres)
+	_, err = w.Write(jres)
+	if err != nil {
+		s.logger.Error("error write responce", "error", err)
+	}
 }
 
 func (s *Server) getEventIntervalHandler(w http.ResponseWriter, req *http.Request,
@@ -259,7 +268,10 @@ func (s *Server) getEventIntervalHandler(w http.ResponseWriter, req *http.Reques
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write(jres)
+	_, err = w.Write(jres)
+	if err != nil {
+		s.logger.Error("error write responce", "error", err)
+	}
 }
 
 func (s *Server) getEventForDayHandler(w http.ResponseWriter, req *http.Request) {

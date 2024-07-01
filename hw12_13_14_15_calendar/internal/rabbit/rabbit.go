@@ -1,9 +1,9 @@
 package rabbit
 
 import (
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config" //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger" //nolint:depguard
-	"github.com/streadway/amqp"                                                  //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"
+	"github.com/streadway/amqp"
 )
 
 type Rabbit struct {

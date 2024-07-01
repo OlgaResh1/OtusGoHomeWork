@@ -3,7 +3,7 @@ package rabbit
 import (
 	"context"
 
-	"github.com/streadway/amqp" //nolint:depguard
+	"github.com/streadway/amqp"
 )
 
 func (r *Rabbit) PublishMessage(_ context.Context, message []byte) (err error) {

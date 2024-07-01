@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"  //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage" //nolint:depguard
-	"github.com/stretchr/testify/require"                                         //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
+	"github.com/stretchr/testify/require"
 )
 
 func testEvent(ownerID storage.EventOwnerID, eventTimeString string) storage.Event {

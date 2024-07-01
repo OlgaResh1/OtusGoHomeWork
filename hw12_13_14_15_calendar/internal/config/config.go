@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	viper "github.com/spf13/viper" //nolint:depguard
+	viper "github.com/spf13/viper"
 )
 
 // При желании конфигурацию можно вынести в internal/config.

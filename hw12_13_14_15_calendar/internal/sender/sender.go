@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger" //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"
 )
 
 type Consumer interface {
