@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/app"                          //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"                       //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"                       //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"                      //nolint:depguard
-	memorystorage "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage/memory" //nolint:depguard
-	"github.com/stretchr/testify/require"                                                              //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/app"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
+	memorystorage "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHttpServer(t *testing.T) {

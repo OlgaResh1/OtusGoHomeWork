@@ -9,15 +9,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"  //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage" //nolint:depguard
-	"github.com/gorilla/mux"                                                      //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
+	"github.com/gorilla/mux"
 )
 
-type Server struct { // TODO
-	server *http.Server
-	logger Logger
-	app    Application
+type Server struct {
+	server   *http.Server
+	logger   Logger
+	app      Application
+	IsClosed bool
 }
 
 type Logger interface {
@@ -34,6 +35,8 @@ type Application interface {
 	GetEventsForDay(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
 	GetEventsForWeek(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
 	GetEventsForMonth(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
+	GetEventsForNotification(ctx context.Context, startDate time.Time, endDate time.Time) ([]storage.Event, error)
+	RemoveOldEvents(ctx context.Context, date time.Time) error
 }
 
 const ErrorParceDate = "error parse date "
@@ -55,6 +58,8 @@ func (s *Server) Router() *mux.Router {
 	mux.HandleFunc("/{user_id:[0-9]+}/eventsForWeek/{year}/{month}/{day}", s.getEventForWeekHandler).Methods("GET")
 	mux.HandleFunc("/{user_id:[0-9]+}/eventsForMonth/{year}/{month}", s.getEventForMonthHandler).Methods("GET")
 	mux.HandleFunc("/{user_id:[0-9]+}/events", s.getEventHandler).Methods("GET")
+	mux.HandleFunc("/eventsForNotify/{start}/{end}", s.getEventForNotifyHandler).Methods("GET")
+	mux.HandleFunc("/removeOldEvents/{date}", s.removeOldEventsHandler).Methods("GET")
 	return mux
 }
 
@@ -68,6 +73,7 @@ func (s *Server) Start(_ context.Context) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
+	s.IsClosed = true
 	return s.server.Shutdown(ctx)
 }
 
@@ -102,7 +108,10 @@ func (s *Server) createEventHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf(`{"id": %d }`, int(eventID))))
+	_, err = w.Write([]byte(fmt.Sprintf(`{"id": %d }`, int(eventID))))
+	if err != nil {
+		s.logger.Error("error write responce", "error", err)
+	}
 }
 
 func (s *Server) updateEventHandler(w http.ResponseWriter, req *http.Request) {
@@ -160,6 +169,23 @@ func (s *Server) removeEventHandler(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (s *Server) removeOldEventsHandler(w http.ResponseWriter, req *http.Request) {
+	v := mux.Vars(req)
+	date, err := time.Parse("2006-1-2", v["date"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		s.logger.Error(ErrorParceDate + v["date"])
+		return
+	}
+
+	err = s.app.RemoveOldEvents(req.Context(), date)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *Server) getEventHandler(w http.ResponseWriter, req *http.Request) {
 	v := mux.Vars(req)
 
@@ -181,7 +207,42 @@ func (s *Server) getEventHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write(jres)
+	_, err = w.Write(jres)
+	if err != nil {
+		s.logger.Error("error write responce", "error", err)
+	}
+}
+
+func (s *Server) getEventForNotifyHandler(w http.ResponseWriter, req *http.Request) {
+	v := mux.Vars(req)
+	startDate, err := time.Parse("2006-1-2", v["start"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		s.logger.Error("error parse startDate " + v["start"])
+		return
+	}
+	endDate, err := time.Parse("2006-1-2", v["end"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		s.logger.Error("error parse endDate " + v["end"])
+		return
+	}
+
+	res, err := s.app.GetEventsForNotification(req.Context(), startDate, endDate)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	jres, err := json.Marshal(res)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jres)
+	if err != nil {
+		s.logger.Error("error write responce", "error", err)
+	}
 }
 
 func (s *Server) getEventIntervalHandler(w http.ResponseWriter, req *http.Request,
@@ -207,7 +268,10 @@ func (s *Server) getEventIntervalHandler(w http.ResponseWriter, req *http.Reques
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write(jres)
+	_, err = w.Write(jres)
+	if err != nil {
+		s.logger.Error("error write responce", "error", err)
+	}
 }
 
 func (s *Server) getEventForDayHandler(w http.ResponseWriter, req *http.Request) {

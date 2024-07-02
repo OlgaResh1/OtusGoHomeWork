@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"  //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage" //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
 )
 
 type Storage struct {
@@ -84,6 +84,17 @@ func (s *Storage) RemoveEvent(_ context.Context, id storage.EventID) error {
 	return nil
 }
 
+func (s *Storage) RemoveOldEvents(_ context.Context, date time.Time) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, event := range s.events {
+		if event.StartDateTime.Before(date) {
+			delete(s.events, event.ID)
+		}
+	}
+	return nil
+}
+
 func (s *Storage) GetEventsAll(_ context.Context, ownerID storage.EventOwnerID) ([]storage.Event, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -139,6 +150,22 @@ func (s *Storage) GetEventsForMonth(_ context.Context, ownerID storage.EventOwne
 	for _, event := range s.events {
 		if event.OwnerID == ownerID && event.StartDateTime.Year() == date.Year() {
 			result = append(result, event)
+		}
+	}
+	return result, nil
+}
+
+func (s *Storage) GetEventsForNotification(_ context.Context, startDate time.Time, endDate time.Time,
+) ([]storage.Event, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	result := make([]storage.Event, 0)
+	for _, event := range s.events {
+		if event.TimeToNotify > 0 {
+			notify := event.StartDateTime.Add(-event.TimeToNotify)
+			if notify.After(startDate) && notify.Before(endDate) {
+				result = append(result, event)
+			}
 		}
 	}
 	return result, nil

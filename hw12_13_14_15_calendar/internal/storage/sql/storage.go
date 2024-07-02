@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"  //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage" //nolint:depguard
-	_ "github.com/jackc/pgx/stdlib"                                               //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
+	_ "github.com/jackc/pgx/stdlib"
 )
 
 type Storage struct {
@@ -46,8 +47,12 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 	if err != nil {
 		return 0, err
 	}
-	defer tx.Rollback()
-
+	defer func() {
+		err = tx.Rollback()
+		if err != nil {
+			log.Println("failed to rollback transaction:", err)
+		}
+	}()
 	// check exist event
 	query := `select id	from events where owner_id=$1 and begin_datetime ='$2'`
 	var existID storage.EventID
@@ -100,14 +105,21 @@ func (s *Storage) UpdateEvent(ctx context.Context, id storage.EventID, event sto
 func (s *Storage) RemoveEvent(ctx context.Context, id storage.EventID) error {
 	query := `delete from events where id = $1`
 
-	result, err := s.db.ExecContext(ctx, query, id)
+	_, err := s.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
-	_, err = result.RowsAffected()
+	return nil
+}
+
+func (s *Storage) RemoveOldEvents(ctx context.Context, date time.Time) error {
+	query := `delete from events where begin_datetime < $1`
+
+	_, err := s.db.ExecContext(ctx, query, date)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -149,9 +161,17 @@ func (s *Storage) getEventsByInterval(ctx context.Context, ownerID storage.Event
 	beginDT time.Time, endDT time.Time,
 ) ([]storage.Event, error) {
 	query := `select id, owner_id, title, description, begin_datetime, duration, notify
-		from events where owner_id=$1 and begin_datetime >=$2 and  begin_datetime <$3 order by begin_datetime;`
+		from events where begin_datetime >=$1 and  begin_datetime <$2'`
 
-	rows, err := s.db.QueryContext(ctx, query, ownerID, beginDT, endDT)
+	var rows *sql.Rows
+	var err error
+	if ownerID != storage.NotValidOwnerID {
+		query += `owner_id=$3 order by begin_datetime;`
+		rows, err = s.db.QueryContext(ctx, query, beginDT, endDT, ownerID)
+	} else {
+		query += `order by begin_datetime;`
+		rows, err = s.db.QueryContext(ctx, query, beginDT, endDT)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -205,4 +225,9 @@ func (s *Storage) GetEventsForMonth(ctx context.Context, ownerID storage.EventOw
 	nextMonth := date.AddDate(0, 1, 0)
 
 	return s.getEventsByInterval(ctx, ownerID, firstOfMonth, nextMonth)
+}
+
+func (s *Storage) GetEventsForNotification(ctx context.Context, startDate time.Time, endDate time.Time,
+) ([]storage.Event, error) {
+	return s.getEventsByInterval(ctx, storage.NotValidOwnerID, startDate, endDate)
 }

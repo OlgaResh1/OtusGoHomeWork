@@ -9,12 +9,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/app"                      //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"                   //nolint:depguard
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"                   //nolint:depguard
-	internalgrpc "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/server/grpc" //nolint:depguard
-	internalhttp "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/server/http" //nolint:depguard
-	"github.com/spf13/pflag"                                                                       //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/app"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/config"
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/server/grpc"
+	internalhttp "github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/spf13/pflag"
 )
 
 var configFile string
@@ -45,44 +45,57 @@ func main() {
 		log.Fatal("error create storage: ", err)
 		return
 	}
-	defer closeStorage(ctx, storage)
-
+	defer func() {
+		err = closeStorage(ctx, storage)
+		if err != nil {
+			logg.Error("error close storage: " + err.Error())
+			return
+		}
+	}()
 	calendar := app.New(logg, storage)
+	serverHTTP := internalhttp.NewServer(cfg, logg, calendar)
+	serverGrpc := internalgrpc.NewServer(cfg, logg, calendar)
 
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
-		defer wg.Done()
-		serverHTTP := internalhttp.NewServer(cfg, logg, calendar)
 		if err := serverHTTP.Start(ctx); err != nil {
-			logg.Error("failed to start http server: "+err.Error(), "source", "http")
+			if !serverHTTP.IsClosed {
+				logg.Error("failed to start HTTP-server: "+err.Error(), "source", "http")
+			}
 			cancel()
-			os.Exit(1)
 		}
+	}()
+	go func() {
+		defer wg.Done()
 		<-ctx.Done()
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
 		if err := serverHTTP.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: "+err.Error(), "source", "http")
+			logg.Error("failed to stop HTTP-server: "+err.Error(), "source", "http")
+		} else {
+			logg.Info("HTTP-server stopped ok", "source", "http")
+		}
+	}()
+	go func() {
+		if err := serverGrpc.Start(ctx); err != nil {
+			logg.Error("failed to start GRPC-server: "+err.Error(), "source", "grpc")
+			cancel()
 		}
 	}()
 	go func() {
 		defer wg.Done()
-		serverGrpc := internalgrpc.NewServer(cfg, logg, calendar)
-		if err := serverGrpc.Start(ctx); err != nil {
-			logg.Error("failed to start grpc server: "+err.Error(), "source", "grpc")
-			cancel()
-			os.Exit(1)
-		}
 		<-ctx.Done()
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
 		if err := serverGrpc.Stop(ctx); err != nil {
-			logg.Error("failed to stop grpc server: "+err.Error(), "source", "grpc")
+			logg.Error("failed to stop GRPC-server: "+err.Error(), "source", "grpc")
+		} else {
+			logg.Info("GRPC-server stopped ok", "source", "grpc")
 		}
 	}()
 	wg.Wait()

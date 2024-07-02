@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage" //nolint:depguard
+	"github.com/OlgaResh1/OtusGoHomeWork/hw12_13_14_15_calendar/internal/storage"
 )
 
 type App struct { // TODO
@@ -28,6 +28,8 @@ type Storage interface {
 	GetEventsForDay(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
 	GetEventsForWeek(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
 	GetEventsForMonth(ctx context.Context, ownerID storage.EventOwnerID, date time.Time) ([]storage.Event, error)
+	GetEventsForNotification(ctx context.Context, startDate time.Time, endDate time.Time) ([]storage.Event, error)
+	RemoveOldEvents(ctx context.Context, date time.Time) error
 }
 
 func New(logger Logger, storage Storage) *App {
@@ -68,4 +70,14 @@ func (a *App) GetEventsForMonth(ctx context.Context, ownerID storage.EventOwnerI
 	date time.Time,
 ) ([]storage.Event, error) {
 	return a.storage.GetEventsForMonth(ctx, ownerID, date)
+}
+
+func (a *App) GetEventsForNotification(ctx context.Context, startDate time.Time,
+	endDate time.Time,
+) ([]storage.Event, error) {
+	return a.storage.GetEventsForNotification(ctx, startDate, endDate)
+}
+
+func (a *App) RemoveOldEvents(ctx context.Context, date time.Time) error {
+	return a.storage.RemoveOldEvents(ctx, date)
 }

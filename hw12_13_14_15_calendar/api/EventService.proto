@@ -25,6 +25,8 @@ service EventsService {
   rpc GetEventsForDay(GetEventsIntervalRequest) returns (GetEventsResponse) {}
   rpc GetEventsForWeek(GetEventsIntervalRequest) returns (GetEventsResponse) {}
   rpc GetEventsForMonth(GetEventsIntervalRequest) returns (GetEventsResponse) {}
+  rpc GetEventsForNotification(GetEventsForNotificationRequest) returns (GetEventsResponse) {}
+  rpc RemoveOldEvents(RemoveOldEventsRequest) returns (google.protobuf.Empty) {}
 }
 
 message RemoveEventRequest {
@@ -38,12 +40,23 @@ message GetEventsIntervalRequest {
   google.protobuf.Timestamp date=2;
 }
 
+message GetEventsForNotificationRequest {
+  google.protobuf.Timestamp startdate=1;
+  google.protobuf.Timestamp enddate=2;
+}
+
 message CreateEventResponse {
   int64 id = 1;
 }
+
 message UpdateEventResponse {
   int64 id = 1;
 }
+
 message GetEventsResponse {
   repeated Event events = 1;
+}
+
+message RemoveOldEventsRequest {
+  google.protobuf.Timestamp date = 1;
 }
