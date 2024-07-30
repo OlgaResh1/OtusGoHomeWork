@@ -4,10 +4,10 @@ format = "json"
 addsource = false
 
 [grpcclient]
-addr=":50051"
+addr="calendar:50051"
 
 [rabbitmq]
-uri = "amqp://guest:guest@localhost:5672/"
+uri = "amqp://guest:guest@rabbitmq:5672/"
 exchange = "test-exchange"
 queuename = "test-queue"
 exchangekind = "topic"
@@ -17,4 +17,4 @@ consumertag = "simple-consumer"
 
 [scheduler]
 timeperiod="5s"
-expiration="1y"
+expiration="168h"
