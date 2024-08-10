@@ -2,7 +2,6 @@ BIN := "./bin/calendar"
 BIN_SCHEDULER="./bin/calendar_scheduler"
 BIN_SENDER="./bin/calendar_sender"
 DOCKER_IMG="calendar:develop"
-DOCKER_IMG="calendar:develop"
 DOCKER_IMG_SH="scheduler:develop"
 DOCKER_IMG_SENDER="sender:develop"
 
