@@ -34,7 +34,7 @@ func main() {
 	logg := logger.New(cfg.Logger.Level, cfg.Logger.Format, cfg.Logger.AddSource)
 	r, err := rabbit.New(cfg.RMQ, *logg)
 	if err != nil {
-		logg.Error("failed to start: "+err.Error(), "source", "scheduler")
+		logg.Error("failed to start: rqm.uri: "+cfg.RMQ.URI+", error:"+err.Error(), "source", "scheduler")
 		return
 	}
 	defer func() {

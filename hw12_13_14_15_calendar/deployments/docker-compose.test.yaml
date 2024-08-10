@@ -1,0 +1,14 @@
+
+services:
+  integration_tests:
+    build: 
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      CALENDAR_SERVER_HOST: "calendar:${CALENDAR_GRPC_PORT}"
+    container_name: tests      
+    depends_on: 
+      - calendar
+    networks:
+      - calendar
+
