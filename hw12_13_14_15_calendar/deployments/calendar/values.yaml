@@ -1,0 +1,41 @@
+replicaCount: 1
+
+app:
+  image: 
+    repository: calendar
+    tag: develop
+  http:
+    port: 8080
+    targetPort: 80
+  grpc:
+    port: 50051
+    targetPort: 50051
+
+service:
+  type: ClusterIP
+  port: 80
+
+postgres:
+  image:
+    repository: postgres
+    tag: latest
+  db: calendardb
+  username: user1
+  password: pass1
+  port: 5432
+
+rabbit:
+  image:
+    repository: rabbitmq
+    tag: latest
+  hostname: rabbit
+  username: guest
+  password: guest
+  port: 5672
+  httpport: 15672
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80

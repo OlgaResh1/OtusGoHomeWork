@@ -50,12 +50,12 @@ build-img-sender:
 		-f build/sender/Dockerfile .
 
 run-img: build-img
-	docker run $(DOCKER_IMG)
+	docker run $(DOCKER_IMG) 
 
 run-img-sh: build-img-sh
 	docker run $(DOCKER_IMG_SH)
 
-run-img-sender: build-img-sh
+run-img-sender: build-img-sender
 	docker run $(DOCKER_IMG_SENDER)	
 
 
@@ -78,4 +78,9 @@ integration-tests:
 	docker compose -f deployments/docker-compose.yaml -f deployments/docker-compose.test.yaml up -d 
 	docker compose -f deployments/docker-compose.yaml -f deployments/docker-compose.test.yaml down
 
-.PHONY: build run run-scheduler run-sender build-img run-img version test lint up down integration-tests run-test-integration
+imgs-to-minikube:
+	minikube image load $(DOCKER_IMG)
+	minikube image load $(DOCKER_IMG_SH)
+	minikube image load $(DOCKER_IMG_SENDER)	
+
+.PHONY: build run run-scheduler run-sender build-img run-img version test lint up down integration-tests run-test-integration imgs-to-minikube

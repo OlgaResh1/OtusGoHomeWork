@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: {{ .Values.rabbit.image.repository }}:{{ .Values.rabbit.image.tag }}
+        ports:
+          - name: http
+            protocol: TCP
+            containerPort: {{ .Values.rabbit.httpport }}
+          - name: amqp
+            protocol: TCP
+            containerPort: {{ .Values.rabbit.port }}
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: "{{ .Values.rabbit.username }}"
+        - name: RABBITMQ_DEFAULT_PASS
+          value: "{{ .Values.rabbit.password }}"
+        - name: RABBITMQ_DEFAULT_VHOST
+          value: "{{ .Values.rabbit.hostname }}"
