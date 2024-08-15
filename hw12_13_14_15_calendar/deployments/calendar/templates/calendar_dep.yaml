@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calendar
+  labels:
+    app: calendar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calendar
+  template:
+    metadata:
+      labels:
+        app: calendar
+    spec:
+      containers:
+        - name: calendar
+          image: calendar:develop
+          ports:
+            - containerPort: 8080
+            - containerPort: 50051
+

@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calendar-sender
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calendar-sender
+  template:
+    metadata:
+      labels:
+        app: calendar-sender
+    spec:
+      containers:
+        - name: calendar-sender
+          image: sender:develop

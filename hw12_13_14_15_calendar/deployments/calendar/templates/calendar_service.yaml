@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: calendar-http-service
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: calendar
+  ports:
+  - port: {{ .Values.app.http.port }}
+    targetPort: {{ .Values.app.http.port }}
