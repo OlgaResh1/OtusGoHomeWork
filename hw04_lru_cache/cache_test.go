@@ -50,7 +50,48 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		const cacheSize = 3
+		c := NewCache(cacheSize)
+		var key Key
+		var val string
+
+		for i := 0; i < cacheSize; i++ {
+			key = Key("Key_" + strconv.Itoa(i+1))
+			val = "Value_" + strconv.Itoa(i+1)
+			wasInCache := c.Set(key, val)
+			require.False(t, wasInCache)
+
+			readedVal, ok := c.Get(key)
+			require.True(t, ok)
+			require.Equal(t, val, readedVal)
+		}
+		// pop first element from cache
+		wasInCache := c.Set(Key("Key_4"), "Value_4")
+		require.False(t, wasInCache)
+
+		_, ok := c.Get(Key("Key_1"))
+		require.False(t, ok)
+
+		// pop unused element
+		readedVal, ok := c.Get(Key("Key_2"))
+		require.True(t, ok)
+		require.Equal(t, "Value_2", readedVal)
+
+		wasInCache = c.Set(Key("Key_2"), "Value_2_new")
+		require.True(t, wasInCache)
+
+		wasInCache = c.Set(Key("Key_3"), "Value_3_new")
+		require.True(t, wasInCache)
+
+		readedVal, ok = c.Get(Key("Key_3"))
+		require.True(t, ok)
+		require.Equal(t, "Value_3_new", readedVal)
+
+		wasInCache = c.Set(Key("Key_4_replaced"), "Value_4")
+		require.False(t, wasInCache)
+
+		_, ok = c.Get(Key("Key_4"))
+		require.False(t, ok)
 	})
 }
 
