@@ -1,0 +1,16 @@
+goos: linux
+goarch: amd64
+pkg: github.com/OlgaResh1/OtusGoHomeWork/hw10_program_optimization
+cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+BenchmarkForStat-12    	       2	 555701068 ns/op	316830380 B/op	 2845393 allocs/op
+BenchmarkForStat-12    	       2	 527607774 ns/op	316774232 B/op	 2845389 allocs/op
+BenchmarkForStat-12    	       2	 529138084 ns/op	316812376 B/op	 2845394 allocs/op
+BenchmarkForStat-12    	       2	 526742063 ns/op	316792576 B/op	 2845390 allocs/op
+BenchmarkForStat-12    	       2	 554420060 ns/op	316810728 B/op	 2845389 allocs/op
+BenchmarkForStat-12    	       2	 544852979 ns/op	316829512 B/op	 2845392 allocs/op
+BenchmarkForStat-12    	       2	 534259898 ns/op	316792960 B/op	 2845391 allocs/op
+BenchmarkForStat-12    	       2	 545902356 ns/op	316829576 B/op	 2845393 allocs/op
+BenchmarkForStat-12    	       2	 534466576 ns/op	316792592 B/op	 2845390 allocs/op
+BenchmarkForStat-12    	       2	 541264739 ns/op	316830136 B/op	 2845395 allocs/op
+PASS
+ok  	github.com/OlgaResh1/OtusGoHomeWork/hw10_program_optimization	20.602s

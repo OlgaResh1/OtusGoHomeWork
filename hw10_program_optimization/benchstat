@@ -1,0 +1,15 @@
+goos: linux
+goarch: amd64
+pkg: github.com/OlgaResh1/OtusGoHomeWork/hw10_program_optimization
+cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+           │     old     │                 new                 │
+           │   sec/op    │   sec/op     vs base                │
+ForStat-12   537.9m ± 3%   155.1m ± 3%  -71.16% (p=0.000 n=10)
+
+           │      old      │                 new                  │
+           │     B/op      │     B/op      vs base                │
+ForStat-12   302.14Mi ± 0%   10.45Mi ± 0%  -96.54% (p=0.000 n=10)
+
+           │     old      │                 new                 │
+           │  allocs/op   │  allocs/op   vs base                │
+ForStat-12   2845.4k ± 0%   612.1k ± 0%  -78.49% (p=0.000 n=10)
